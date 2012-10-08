@@ -1,0 +1,65 @@
+.\"-
+.\" Copyright (c) Rene Ladan <r.c.ladan@gmail.com>, 2-claused BSD license
+.\"
+
+.Dd May 10, 2006
+.Dt BIOSFONT 4
+.Os
+.Sh NAME
+.Nm biosfont
+.Nd retrieve font bitmaps from BIOS memory
+.Sh SYNOPSIS
+.Cd /dev/biosfont
+.Sh DESCRIPTION
+The special file
+.Pa /dev/biosfont
+is an interface to retrieve font bitmaps from the
+.Tn BIOS
+memory.
+The fonts represented are the native system fonts.
+The complete ASCII set (256 characters) can be retrieved.
+.Sh IOCTL INTERFACE
+The characters can be retrieved using the
+.Fn ioctl
+call.
+The parameters are:
+.Bl -tag -width indent
+.It Dv BIOSFONT_ASCII
+The call identifier for to use for
+.Nm biosfont
+calls.
+.It Dv &ch
+A reference to an instance of 
+.Fa t_biosfont
+which is defined in the header file.
+.Fa t_biosfont
+has two fields:
+.Bl -tag -width indent
+.It Fa u_char bitmap[8]
+The output, contains the bitmap scanlines.
+The top scanline is stored in bitmap[0], the bottom scanline is stored in bitmap[7].
+The scanlines themselves are stored little endian (MSB first).
+.It Fa u_char nr
+ASCII code of character to retrieve, range is bound to 0 <= nr <= 255
+.El
+.El
+.Sh COMPATIBILITY
+Due to a braindead endianness implementation the driver is only guaranteed to work on i386 and amd64 architectures.
+These are also the only architectures known to the author to actually have the bitmap fonts.
+.Sh FILES
+.Bl -tag -width indent
+.It Pa /usr/local/include/biosfont.h
+The header file to include when accessing the driver.
+.It Pa /dev/biosfont
+The device node for the driver.
+.It Pa /boot/modules/biosfont.ko
+The kernel module to load when using the driver.
+.El
+.Sh HISTORY
+The
+.Nm biosfont
+driver was first written in August 2003, and rewritten in April 2006 when the original sources were lost (oops).
+It was released to the public on May 7, 2006.
+.Pp
+Patches can be send to the author
+.An Rene Ladan Aq r.c.ladan@gmail.com .
