@@ -88,7 +88,7 @@ biosfont_loader(struct module *m __unused, int what, void *arg __unused)
 			UID_ROOT,
 			GID_WHEEL,
 			S_IRUSR | S_IRGRP | S_IROTH,
-			biosfont_cdevsw.d_name);
+			"biosfont");
 		if (bootverbose)
 			printf("<biosfont>: upper=%08lx\n", fontbase);
 		break;
