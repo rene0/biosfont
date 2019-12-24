@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2012 René Ladan. All rights reserved.
+Copyright (c) 2003-2019 René Ladan. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -114,14 +114,15 @@ main(int argc, char **argv)
 		printf("Error (sysctl): %s\n", strerror(errno));
 		return(errno);
 	}
-	for (os_name = strdup(r), i = 0; os_name[i] != ':'; i++)
+	for (os_name = strdup(r), i = 0; os_name[i] != ':' && os_name[i] != '\n' && i < strlen(os_name); i++)
 		;
 	os_name[i] = '\0';
 	os_ident = strrchr(r, '/');
-	for (i = 0; os_ident[i] != '\n'; i++)
-		os_ident[i] = os_ident[i + 1];
-	os_ident[i-1] = '\0';
-
+	if (os_ident != NULL) {
+		for (i = 0; os_ident[i] != '\n' && i+1 < strlen(os_ident); i++)
+			os_ident[i] = os_ident[i + 1];
+		os_ident[i-1] = '\0';
+	}
 	/* read bitmaps of 0 1 2 3 4 5 6 7 8 9 : - into bitmap */
 	f = open("/dev/biosfont", O_RDONLY);
 	if (f == -1 && errno != 0) {
@@ -159,7 +160,11 @@ main(int argc, char **argv)
 	}
 
 	/* output something like "FreeBSD 6.1-RC #0 (600105, RENE)" */
-	asprintf(&r, "%s (%i, %s)", os_name, osreldate, os_ident);
+	if (os_ident != NULL) {
+		asprintf(&r, "%s (%i, %s)", os_name, osreldate, os_ident);
+	} else {
+		asprintf(&r, "%s (%i)", os_name, osreldate);
+	}
 	mvprintw(12, (80 - strlen(r)) / 2, "%s", r);
 
 	if (colorwin)
